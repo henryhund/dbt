@@ -3,12 +3,13 @@ import yaml
 import jinja2
 import re
 from dbt.templates import BaseCreateTemplate, DryCreateTemplate
-from dbt.utils import split_path
+
 import dbt.schema_tester
 import dbt.project
 import dbt.archival
+import dbt.utils
 from dbt.utils import deep_merge, DBTConfigKeys, compiler_error, \
-    compiler_warning
+    compiler_warning, split_path
 
 
 class SourceConfig(object):
@@ -283,6 +284,13 @@ class DBTSource(object):
         name, _ = os.path.splitext(parts[-1])
         return [self.own_project['name']] + parts[1:-1] + [name]
 
+    def as_graph_node(self):
+        package = self.project.get('name')
+        name = self.name
+        _type = 'model'
+
+        return {'node': (package, _type, name)}
+
     @property
     def original_fqn(self):
         return self.fqn
@@ -495,6 +503,25 @@ class Model(DBTSource):
     @property
     def cte_name(self):
         return "__dbt__CTE__{}".format(self.name)
+
+    def as_graph_node(self):
+        package = self.project.get('name')
+        name = self.name
+        _type = 'model'
+
+        return {
+            'node': (package, _type, name),
+            'attrs': {
+                'package': self.project.get('name'),
+                'name': self.name,
+                'type': 'model',
+                'compiled_path': os.path.join(
+                    self.project.get('name'),
+                    'models',
+                    '{}.sql'.format(self.name)
+                )
+            }
+        }
 
     def __repr__(self):
         return "<Model {}.{}: {}>".format(

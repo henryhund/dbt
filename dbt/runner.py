@@ -630,8 +630,10 @@ class RunManager(object):
     def run_from_graph(self, runner, limit_to):
         logger.info("Loading dependency graph file")
         linker = self.deserialize_graph()
+        nodes, attrs = linker.nodes()
+
         compiled_models = [make_compiled_model(fqn, linker.get_node(fqn))
-                           for fqn in linker.nodes()]
+                           for node in nodes]
         relevant_compiled_models = [m for m in compiled_models
                                     if m.is_type(runner.run_type)]
 

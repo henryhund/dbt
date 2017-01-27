@@ -112,9 +112,13 @@ class GraphTest(unittest.TestCase):
 
         self.compiler.compile(limit_to=['models'])
 
-        self.assertEquals(
+        six.assertCountEqual(self,
             self.graph_result.nodes(),
-            [('test_models_compile', 'model_one')])
+            [{'package': 'test_models_compile',
+              'name': 'model_one',
+              'type': 'model',
+              'compiled_path': mock_model.get('absolute_path')}
+             for mock_model in self.mock_models])
 
         self.assertEquals(
             self.graph_result.edges(),
@@ -130,8 +134,11 @@ class GraphTest(unittest.TestCase):
 
         six.assertCountEqual(self,
             self.graph_result.nodes(),
-            [('test_models_compile', 'model_one'),
-             ('test_models_compile', 'model_two'),])
+            [{'package': 'test_models_compile',
+              'name': 'model_one',
+              'type': 'model',
+              'compiled_path': mock_model.get('absolute_path')}
+             for mock_model in self.mock_models])
 
         six.assertCountEqual(self,
             self.graph_result.edges(),

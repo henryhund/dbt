@@ -164,7 +164,7 @@ class Compiler(object):
         schema = ctx['env']['schema']
 
         source_model = tuple(model.fqn)
-        linker.add_node(source_model)
+        linker.add_node(model.as_graph_node())
 
         def do_ref(*args):
             if len(args) == 1:
@@ -204,7 +204,11 @@ class Compiler(object):
             if source_model == other_model_fqn or not add_dependency:
                 pass
             else:
-                linker.dependency(source_model, other_model_fqn)
+                logger.info(model.as_graph_node())
+                linker.dependency(
+                    model.as_graph_node(),
+                    other_model.as_graph_node()
+                )
 
             if other_model.is_ephemeral:
                 linker.inject_cte(model, other_model)

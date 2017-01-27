@@ -10,7 +10,7 @@ class Linker(object):
         self.cte_map = defaultdict(set)
 
     def nodes(self):
-        return self.graph.nodes()
+        return self.graph.nodes(data=true)
 
     def run_type(self):
         return self.graph.graph['dbt_run_type']
@@ -83,7 +83,10 @@ class Linker(object):
         self.graph.add_edge(node2, node1)
 
     def add_node(self, node):
-        self.graph.add_node(node)
+        self.graph.add_node(
+            node.get('node'),
+            node.get('attrs', {})
+        )
 
     def remove_node(self, node):
         children = nx.descendants(self.graph, node)
